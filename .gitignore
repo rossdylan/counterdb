@@ -1,0 +1,7 @@
+*.pyc
+*.egg-info
+*.log
+build/*
+dist/*
+default.etcd/*
+__pycache__/*
