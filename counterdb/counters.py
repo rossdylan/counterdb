@@ -18,6 +18,9 @@ class CounterManager(object):
         self.name = name
 
     def increment(self, key):
+        """
+        Increment the counter given by key.
+        """
         self.counters[self.name][key] += 1
 
     def get(self, key):
@@ -28,6 +31,9 @@ class CounterManager(object):
         return sum([node[key] for node in self.counters.values() if key in node])
 
     def get_all(self):
+        """
+        Return a dictionary with the totals for ever counter.
+        """
         totals = defaultdict(int)
         for node in self.counters.values():
             for key, val in node.items():
@@ -35,9 +41,17 @@ class CounterManager(object):
         return totals
 
     def to_dict(self):
+        """
+        Return the inner dictionary representation of the counters.
+        """
         return self.counters
 
     def merge(self, other):
+        """
+        Merge this set of counters with another one. The merge is the max
+        function. We take the other counters value if it is larger than ours.
+        This is the basic premise behind a stateful G-Counter
+        """
         for node, counters in other.items():
             for key, val in counters.items():
                 if val > self.counters[node][key]:

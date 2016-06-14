@@ -16,6 +16,11 @@ logger = logging.getLogger('counterdb')
 
 class CounterDB(object):
     def __init__(self, loop, name, etcd_uri, dbfile, nhost, nport, whost, wport):
+        """
+        Main server for CounterDB. Handles creation of CounterManager,
+        NodeManager, and WebServer instances. Also takes care of waiting for
+        various tasks to finish, and cleaning up when everything is done.
+        """
         self.loop = loop
         self.name = name
         self.etcd_uri = etcd_uri
@@ -44,6 +49,11 @@ class CounterDB(object):
 
 
     async def serve(self):
+        """
+        Blocking function which starts all the severs, and waits for their
+        tasks to exit. It also checks to see if we've received a SIGINT and
+        cleaning shuts down.
+        """
         self.loop.add_signal_handler(signal.SIGINT, self.sigint_handler)
         self.running = True
         nserver = self.loop.create_task(self.nodes.set_active())
@@ -57,6 +67,9 @@ class CounterDB(object):
         nserver.cancel()
 
     def shutdown(self):
+        """
+        Trigger a shutdown by flipping the running bool to false
+        """
         self.running = False
 
     async def send_sync(self):
@@ -75,6 +88,9 @@ class CounterDB(object):
             logger.debug('Sync completed')
 
     def sigint_handler(self):
+        """
+        Trigger a shutdown on ctrl-C
+        """
         self.running = False
 
     async def sync_callback(self, msg):
@@ -83,6 +99,7 @@ class CounterDB(object):
         into ours.
         """
         self.counters.merge(msg['contents'])
+
 
 def main():
     parser = argparse.ArgumentParser(description="Distributed Counting DB.")
