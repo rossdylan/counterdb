@@ -48,7 +48,7 @@ class CounterDB(object):
         self.running = True
         nserver = self.loop.create_task(self.nodes.set_active())
         sync = self.loop.create_task(self.send_sync())
-        wserver = self.webserver.serve()
+        wserver = self.loop.create_task(self.webserver.serve())
         while self.running:
             await asyncio.wait([sync, nserver, wserver], timeout=10)
         await self.loop.create_task(self.nodes.set_inactive())
