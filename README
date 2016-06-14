@@ -1,0 +1,10 @@
+CounterDB - Web Scale Counting
+----------------------------------------------
+
+
+CounterDB is a prototype database for UVB. Built as an exploration into methods
+of storing counters in a distributed fashion. Current mainline UVB stores
+counters in lmdb, or a in memory hashmap. CounterDB stores counters in-memory
+using dictionaries, and synchronizes between nodes using a G-Counter CRDT. The
+goal being that any node can service a request without having a immediately
+propagate changes to all other nodes.
