@@ -23,6 +23,7 @@ class HTTPServer(object):
         self.host = host
         self.counters = counters
         self.app = web.Application()
+        self.app.router.add_route('GET', '/', self.handle_slash)
         self.app.router.add_route('GET', '/{key}', self.handle_get)
         self.app.router.add_route('POST', '/{key}', self.handle_post)
         self.srv = None
@@ -33,9 +34,10 @@ class HTTPServer(object):
             key = key[:15]
             count = self.counters.get(key)
             return web.Response(body=json.dumps({key: count}).encode('utf-8'))
-        else:
-            counters = self.counters.get_all()
-            return web.Response(body=json.dumps(counters).encode('utf-8'))
+
+    async def handle_slash(self, request):
+        counters = self.counters.get_all()
+        return web.Response(body=json.dumps(counters).encode('utf-8'))
 
     async def handle_post(self, request):
         key = request.match_info.get('key', None)
