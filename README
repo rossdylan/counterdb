@@ -6,5 +6,43 @@ CounterDB is a prototype database for UVB. Built as an exploration into methods
 of storing counters in a distributed fashion. Current mainline UVB stores
 counters in lmdb, or a in memory hashmap. CounterDB stores counters in-memory
 using dictionaries, and synchronizes between nodes using a G-Counter CRDT. The
-goal being that any node can service a request without having a immediately
+goal being that any node can service a request without having to immediately
 propagate changes to all other nodes.
+
+
+Basic Architecture
+------------------
+
+Nodes start up and register themselves with an etcd cluster. Nodes then
+periodically get the list of available nodes from etcd and propogate their
+local changes to them. Communication between nodes is done via msgpack
+encoded dictonaries. The format looks like this:
+
+{
+  'type': 'sync',
+  'contents': {
+    <counter contents here>
+  }
+}
+
+Counters are incremented and retrieved via the HTTP API built on top of
+aiohttp. The API is basically the same as uvb-server, which the exception
+that GET and POST requests do different things.
+
+GET / - Returns a JSON encoded dictionary of all counters
+
+GET /<key> - Returns a json encoded dictionary of a single counters value
+
+POST /<key> - Increments a counter, returns {'status': 'yolo'} as per UVB
+spec
+
+POST / - 400 Error
+
+
+Dependencies
+------------
+Python 3.5+
+uvloop
+python-etcd
+msgpack-python
+aiohttp
